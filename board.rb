@@ -6,8 +6,12 @@ class Array
 end
 
 
-
 class Board
+
+   def get_size
+     return @board.size
+   end
+
    def initialize
        @board = Array.new(7){Array.new(6, "z")}
        @counter = 0
@@ -38,30 +42,27 @@ class Board
 
    end
    def add_piece(column,symbol)
-       @column=column
-       if column_avaliable?
+          @column=column
        		i=6
-       		while true
+       		while i >= 0
        			if @board[column.to_i][i] == "z"
        				@board[column.to_i][i]= symbol
-       				 @rowcoordinate=i
-       				break
+       				@rowcoordinate=i
+       				return true
        			else
        				i-=1
-       				next
        			end
        		end
-       		return true
-       else
-           false
-       end
+          puts "That column is full!! Please try another column."
+          render
+       		return false
    end
 
    def column_avaliable?
-       if @board[@column.to_i].size <=6
-           return true
-       else
+       if @board[@column.to_i][@board.size-1] == "z"
            return false
+       else
+           return true
        end
    end
    def winning_combination?
@@ -87,26 +88,45 @@ class Board
 
    def winning_diagonal?
 
-     d1 = [@board[3][5],@board[2][4],@board[1][3],@board[0][2]]
-        d2 = [@board[4][5],@board[3][4],@board[2][3],@board[1][2],@board[0][1]]
-        d3 = [@board[5][5],@board[4][4],@board[3][3],@board[2][2],@board[1][1],@board[0][0]]
-     d4 = [@board[0][0],@board[1][1],@board[2][2],@board[3][3],@board[4][4],@board[5][5]]
-              d5 = [@board[2][0],@board[3][1],@board[4][2],@board[5][3],@board[6][4]]
-              d6 = [@board[3][0],@board[4][1],@board[5][2],@board[6][3]]
-     d7 =[@board[6][2],@board[5][3],@board[4][4],@board[3][5]]
-     d8 =[@board[6][1],@board[5][2],@board[4][3],@board[3][4],@board[2][5]]
-     d9 =[@board[6][0],@board[5][1],@board[4][2],@board[3][3],@board[2][4], @board[1][5]]
-          d10 = [@board[5][0], @board[4][1], @board[3][2], @board[2][3], @board[1][4], @board[0][5]]
-          d11 = [@board[4][0], @board[3][1], @board[2][2], @board[1][3], @board[0][4]]
-          d12 = [@board[3][0], @board[2][1], @board[1][2], @board[0][3]]
+    n = 0
+    d1 = []
 
-     array_diagonals = [d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12]
-     array_diagonals.each { |current_diagonal|
-       if four_in_a_row?(current_diagonal)
-         return true
-       end
+    # finding the start point of d1, which is the bottom left corner
 
-     }
+    # keep going down diagonal until hitting a border starting at piece origin
+    while @rowcoordinate+n < @board[0].size-1 && (@column.to_i)-n > 0
+      n+=1
+    end
+
+    # keep going up diagonal until hitting a border starting at the starting point of d1
+    # insertting each coordinate piece into d1
+    while @rowcoordinate+n >= 0 && (@column.to_i)-n < @board.size
+      d1 << @board[(@column.to_i)-n][@rowcoordinate+n]
+      n-=1
+    end
+
+    # if d1 has a four in a row return true, if not, continue with d2
+    return true if four_in_a_row?(d1)
+
+    n = 0
+    d2 = []
+
+    # finding the start point of d2, which is the bottom left corner
+
+    # keep going down diagonal until hitting a border starting at piece origin
+    while (@column.to_i)+n < @board.size-1 && @rowcoordinate+n < @board[0].size-1
+      n+=1
+    end
+
+    # keep going up diagonal until hitting a border starting at the starting point of d2
+    # insertting each coordinate piece into d2
+    while @rowcoordinate+n >= 0 && (@column.to_i)+n >= 0
+      d2 << @board[(@column.to_i)+n][@rowcoordinate+n]
+      n-=1
+    end
+
+     # if d1 has a four in a row, if not, return false
+     return true if four_in_a_row?(d2)
      return false
 
 end
